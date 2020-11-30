@@ -92,8 +92,9 @@ def checar_trinca(mao,jog):
 
 def checar_quadra(mao,jog):
     return True
-
     
+
+
 def prob_jogadores(baralho,jogadores, dealer):
     for i in range(len(dealer)):
         baralho.append(dealer[i])
