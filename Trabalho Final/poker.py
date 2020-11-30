@@ -41,7 +41,19 @@ def distribuir_cartas(baralho):
 
 # Verificar combinações
 
-def checar_sequencia(mao,jog):
+def checar_par(mao,jog):
+    comb = [mao[0],mao[1],mao[2],jog[0],jog[1]]
+    aux = []
+
+    return True
+
+def checar_2pares(mao,jog):
+    return True
+
+def checar_trinca(mao,jog):
+    return True
+
+def checar_straight(mao,jog):
     comb = [mao[0],mao[1],mao[2],jog[0],jog[1]]
     max = comb[0].v
     min = comb[0].v
@@ -67,7 +79,7 @@ def checar_sequencia(mao,jog):
     else:
         return False
 
-def checar_naipe_igual(mao,jog):
+def checar_flush(mao,jog):
     comb = [mao[0],mao[1],mao[2],jog[0],jog[1]]
     aux = []
     
@@ -81,25 +93,31 @@ def checar_naipe_igual(mao,jog):
     else:
         return False
 
-def checar_par(mao,jog):
-    return True
-
-def checar_2pares(mao,jog):
-    return True
-
-def checar_trinca(mao,jog):
+def checar_fullhouse(mao,jog):
     return True
 
 def checar_quadra(mao,jog):
     return True
+
+def checar_straight_flush(mao,jog):
+    if (checar_straight(mao,jog) == True) and (checar_flush(mao,jog) == True):
+        return True
+    else:
+        return False
     
+def checar_royal_flush(mao,jog):
+    comb = [mao[0],mao[1],mao[2],jog[0],jog[1]]
+    max = comb[0].v
 
+    # Verifica maior índice
+    for i in range(1,len(comb)):
+        if comb[i].v > max:
+            max = comb[i].v
 
-def prob_jogadores(baralho,jogadores, dealer):
-    for i in range(len(dealer)):
-        baralho.append(dealer[i])
-
-    return 0
+    if (checar_straight(mao,jog) == True) and (checar_flush(mao,jog) == True) and (max == 14):
+        return True
+    else:
+        return False
 
 def main():
     baralho = preencher_baralho()
@@ -110,8 +128,8 @@ def main():
     river = mesa[2][4]
     print(mesa[1],mesa[2])
     for i in range(len(mesa[1])):
-        print("É sequência? ",checar_sequencia(flop,mesa[1][i]))
-        naipe_igual = checar_naipe_igual(flop,mesa[1][i])
-        print("Naipes Iguais? ",naipe_igual)
+        print("É sequência? ",checar_straight(flop,mesa[1][i]))
+        
+        print("Naipes Iguais? ",checar_flush(flop,mesa[1][i]))
 
 main()
