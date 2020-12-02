@@ -51,23 +51,15 @@ def distribuir_cartas(baralho,qtd_jog):
     return [baralho, jogadores, dealer]
 
 # Soma cartas do jogador para verificar em combinações iguais qual tem maior valor:
-def soma_cartas(mao,jog):
+def soma_cartas(comb):
     soma = 0
-    for i in range(len(mao)):
-        soma += mao[i].valor**2
-    
-    soma += jog.carta_1.valor**2
-    soma += jog.carta_2.valor**2
+    for i in range(len(comb)):
+        soma += comb[i].valor**2
     
     return soma
 
 # Verifica combinações
-def checar_par(mao,jog):
-    comb = []
-    for i in range(len(mao)):
-        comb.append(mao[i])
-    comb.append(jog.carta_1)
-    comb.append(jog.carta_2)
+def checar_par(comb):
     aux = []
 
     for i in range(len(comb)):
@@ -83,12 +75,7 @@ def checar_par(mao,jog):
     else:
         return False
 
-def checar_2pares(mao,jog):
-    comb = []
-    for i in range(len(mao)):
-        comb.append(mao[i])
-    comb.append(jog.carta_1)
-    comb.append(jog.carta_2)
+def checar_2pares(comb):
     aux = []
 
     for i in range(len(comb)):
@@ -103,12 +90,7 @@ def checar_2pares(mao,jog):
     else:
         return False
 
-def checar_trinca(mao,jog):
-    comb = []
-    for i in range(len(mao)):
-        comb.append(mao[i])
-    comb.append(jog.carta_1)
-    comb.append(jog.carta_2)
+def checar_trinca(comb):
     aux = []
 
     for i in range(len(comb)):
@@ -123,12 +105,7 @@ def checar_trinca(mao,jog):
     else:
         return False
 
-def checar_straight(mao,jog):
-    comb = []
-    for i in range(len(mao)):
-        comb.append(mao[i])
-    comb.append(jog.carta_1)
-    comb.append(jog.carta_2)
+def checar_straight(comb):
     max = comb[0].valor
     min = comb[0].valor
     aux = []
@@ -153,12 +130,7 @@ def checar_straight(mao,jog):
     else:
         return False
 
-def checar_flush(mao,jog):
-    comb = []
-    for i in range(len(mao)):
-        comb.append(mao[i])
-    comb.append(jog.carta_1)
-    comb.append(jog.carta_2)
+def checar_flush(comb):
     aux = []
     
     # Verifica duplicidade
@@ -173,18 +145,13 @@ def checar_flush(mao,jog):
     else:
         return False
 
-def checar_fullhouse(mao,jog):
-    if (checar_par(mao,jog) == True) and (checar_trinca(mao,jog) == True):
+def checar_fullhouse(comb):
+    if (checar_par(comb) == True) and (checar_trinca(comb) == True):
         return True
     else:
         return False
 
-def checar_quadra(mao,jog):
-    comb = []
-    for i in range(len(mao)):
-        comb.append(mao[i])
-    comb.append(jog.carta_1)
-    comb.append(jog.carta_2)
+def checar_quadra(comb):
     aux = []
 
     for i in range(len(comb)):
@@ -199,18 +166,17 @@ def checar_quadra(mao,jog):
     else:
        return False
 
-def checar_straight_flush(mao,jog):
-    if (checar_straight(mao,jog) == True) and (checar_flush(mao,jog) == True):
+def checar_straight_flush(comb):
+    v = []
+    for i in range(len(comb)):
+        v.append(comb[i].valor)
+
+    if (checar_straight(comb) == True) and (checar_flush(comb) == True) and (max(v) < 14):
         return True
     else:
         return False
     
-def checar_royal_flush(mao,jog):
-    comb = []
-    for i in range(len(mao)):
-        comb.append(mao[i])
-    comb.append(jog.carta_1)
-    comb.append(jog.carta_2)
+def checar_royal_flush(comb):
     max = comb[0].valor
 
     # Verifica maior índice
@@ -218,47 +184,59 @@ def checar_royal_flush(mao,jog):
         if comb[i].valor > max:
             max = comb[i].valor
 
-    if (checar_straight_flush(mao,jog) == True) and (max == 14):
+    if (checar_straight_flush(comb) == True) and (max == 14):
         return True
     else:
         return False
 
+# Montar mão a partir das cartas do flop (river e turn também) + cartas do jogador
+def montar_mao(mao,jog):
+    comb = []
+    for i in range(len(mao)):
+        comb.append(mao[i])
+    comb.append(jog.carta_1)
+    comb.append(jog.carta_2)
+
+    return comb
+
 # Define a pontuação conforme a combinação do Jogador. Será usada para determinar se o jogador venceu ou não a rodada
-def verifica_combinacoes(mao,jog):
-    if checar_royal_flush(mao, jog) == True:
+def verifica_combinacoes(comb):
+    if checar_royal_flush(comb) == True:
         return 100000
-    elif checar_straight_flush(mao, jog) == True:
+    elif checar_straight_flush(comb) == True:
         return 90000
-    elif checar_quadra(mao, jog) == True:
+    elif checar_quadra(comb) == True:
         return 80000
-    elif checar_fullhouse(mao, jog) == True:
+    elif checar_fullhouse(comb) == True:
         return 70000
-    elif checar_flush(mao, jog) == True:
+    elif checar_flush(comb) == True:
         return 60000
-    elif checar_straight(mao, jog) == True:
+    elif checar_straight(comb) == True:
         return 50000
-    elif (checar_trinca(mao, jog) == True) and (checar_par(mao,jog) == False):
+    elif (checar_trinca(comb) == True) and (checar_par(comb) == False):
         return 40000
-    elif checar_2pares(mao, jog) == True:
+    elif checar_2pares(comb) == True:
         return 30000
-    elif (checar_par(mao, jog) == True) and (checar_trinca(mao,jog) == False):
+    elif (checar_par(comb) == True) and (checar_trinca(comb) == False):
         return 20000
     else:
         return 10000
 
-def apostas(jog):
+def apostas(jog,count):
     # importa tabela de mãos iniciais para uma lista
     with open('initial-hands.csv', newline='') as f:
         reader = csv.reader(f)
         datas = list(reader)
+
+    count = count/10 # Aumenta as apostas a cada 10 rodadas
 
     if jog.dinheiro > 0:
         for data in datas:
             # Verifica na tabela de mãos iniciais qual é a mão do jogador e se ele irá apostar ou não
             if (str(jog.carta_1.nome) == data[0]) and (str(jog.carta_2.nome) == data[1]) or (str(jog.carta_1.nome) == data[1]) and (str(jog.carta_2.nome) == data[0]):
                 if (data[2] == "blue") or (data[2] == "green") or (data[2] == "yellow"):
-                    return 100
-                else:
+                    return 100*int(count)
+                elif (data[2] == "red"):
                     return 0
     else:
         return 0
@@ -273,9 +251,10 @@ def main():
     # Distribui a economia inicial para os jogadores
     for i in mesa[1]:
         jog.append(Jogador(i[0],i[1],1000,0))
-
+    count = 0
     # As apostas seguem até que o primeiro jogador não tenha mais economia
     while (jog[0].dinheiro > 0 or jog[1].dinheiro > 0):        
+        count += 1
         print("Jogador 1 - Economia: " + str(jog[0].dinheiro))
         print("Jogador 2 - Economia: " + str(jog[1].dinheiro))
         print()
@@ -288,13 +267,15 @@ def main():
         
         # Verifica a mão do jogador, a aposta dele, a pontuação pela combinação e o pote
         for i in range(len(jog)):
-            aposta.append(apostas(jog[i]))
-            jog[i].pontos = verifica_combinacoes(flop,jog[i]) + soma_cartas(flop, jog[i])
-            pontos.append(jog[i].pontos)
-            print("Jogador " + str(i+1) + ": " + str(jog[i].pontos) + "- Aposta: " + str(aposta[i]))
-            jog[i].dinheiro -= aposta[i]
-            pote = pote + aposta[i]
-        
+            if(jog[i].dinheiro > 0):
+                aposta.append(apostas(jog[i],count))
+                jog[i].dinheiro -= aposta[i]
+                comb = montar_mao(flop,jog[i])
+                jog[i].pontos = verifica_combinacoes(comb) + soma_cartas(comb)
+                pontos.append(jog[i].pontos)
+                print("Jogador " + str(i+1) + ": " + str(jog[i].pontos) + " - Aposta: " + str(aposta[i]))
+                pote = pote + aposta[i]
+
         #Valor do pote
         print("Pote: " + str(pote))
 
@@ -319,5 +300,7 @@ def main():
         for j in range(len(mesa[1])):
             jog[j].carta_1 = mesa[1][j][0]
             jog[j].carta_2 = mesa[1][j][1]
+
+        print("Fim da Rodada: ", count)
 
 main()
