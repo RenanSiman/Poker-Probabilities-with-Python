@@ -271,15 +271,16 @@ def main():
     jogadores = []
     for i in mesa[1]:
         jogadores.append(Jogador(i[0],i[1],1000))
-    print(mesa[1],flop)
     
     count = 0
     while (count < 10):
+        pontos = []
         pote = 0
+        print(mesa[1],flop)
         for i in range(len(jogadores)):
-            pontos = verifica_combinacoes(flop,jogadores[i]) + soma_cartas(flop, jogadores[i])
+            pontos.append(verifica_combinacoes(flop,jogadores[i]) + soma_cartas(flop, jogadores[i]))
             aposta = apostas(jogadores[i])
-            print("Jogador " + str(i+1) + ": " + str(pontos) + "- Aposta: " + str(aposta))
+            print("Jogador " + str(i+1) + ": " + str(pontos[i]) + "- Aposta: " + str(aposta))
             pote = pote + aposta
         
         print("Pote: " + str(pote))
@@ -288,7 +289,6 @@ def main():
         random.shuffle(baralho)
         mesa = distribuir_cartas(baralho,2)
         flop = [mesa[2][0],mesa[2][1], mesa[2][2]]
-        print(mesa[1],flop)
         for j in range(len(mesa[1])):
             jogadores[j].carta_1 = mesa[1][j][0]
             jogadores[j].carta_2 = mesa[1][j][1]
