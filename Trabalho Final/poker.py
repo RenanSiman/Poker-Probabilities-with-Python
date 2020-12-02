@@ -17,14 +17,11 @@ class Carta:
     def __init__(self,nome,naipe,valor):
         self.nome = nome
         self.naipe = naipe
-        self.valor = valor
-    
+        self.valor = valor  
     def __str__(self):
         return (str(self.nome) + str(self.naipe))
-
     def __repr__(self):
-        return str(self)
-    
+        return str(self)  
     def get_valor(self): 
         return self.__valor
     
@@ -35,41 +32,33 @@ def preencher_baralho():
     for i in range(0,len(valores)):
         for j in range(0,len(naipes)):
             baralho.append(Carta(valores[i],naipes[j],i+2))
-    
     return baralho
 
 def distribuir_cartas(baralho,qtd_jog):
     dealer = []
     jogadores = []
-
     for i in range(0,qtd_jog):
         jogadores.append([baralho[i],baralho[i+qtd_jog]])    
     for i in range(qtd_jog*2,qtd_jog*2+5):
         dealer.append(baralho[i])
     del(baralho[0:(qtd_jog*2+5)]) # retira cartas já distribuídas
-
     return [baralho, jogadores, dealer]
 
 # Soma cartas do jogador para verificar em combinações iguais qual tem maior valor:
 def soma_cartas(comb):
     soma = 0
     for i in range(len(comb)):
-        soma += comb[i].valor**2
-    
+        soma += comb[i].valor**2  
     return soma
 
 # Verifica combinações
 def checar_par(comb):
     aux = []
-
     for i in range(len(comb)):
-        aux.append(comb[i].valor)
-    
+        aux.append(comb[i].valor)   
     par = []
-    #print(aux)
     for i in aux:
         par.append(aux.count(i)) 
-
     if (par.count(2) == 2):
         return True
     else:
@@ -77,14 +66,11 @@ def checar_par(comb):
 
 def checar_2pares(comb):
     aux = []
-
     for i in range(len(comb)):
-        aux.append(comb[i].valor)
-    
+        aux.append(comb[i].valor)   
     pares = []
     for i in aux:
         pares.append(aux.count(i)) 
-
     if pares.count(2) == 4:
         return True
     else:
@@ -92,14 +78,11 @@ def checar_2pares(comb):
 
 def checar_trinca(comb):
     aux = []
-
     for i in range(len(comb)):
-        aux.append(comb[i].valor)
-    
+        aux.append(comb[i].valor)  
     trinca = []
     for i in aux:
         trinca.append(aux.count(i)) 
-
     if (trinca.count(3) == 3):
         return True
     else:
@@ -109,21 +92,16 @@ def checar_straight(comb):
     max = comb[0].valor
     min = comb[0].valor
     aux = []
-
     # Verifica duplicidade
     for x in range(len(comb)):
         if comb[x].valor not in aux:
-            aux.append(comb[x].valor)
-    
+            aux.append(comb[x].valor)    
     # Verifica maior e menor índices 
     for i in range(1,len(comb)):
         if comb[i].valor > max:
             max = comb[i].valor
         if comb[i].valor < min:
             min = comb[i].valor
-
-    #print(max,min)
-
     # Se a diferença entre o maior e menor índices for 4 e todas as cartas são de valores diferentes, então temos sequência
     if (max - min) == 4 and (len(comb) == len(aux)):
         return True
@@ -131,8 +109,7 @@ def checar_straight(comb):
         return False
 
 def checar_flush(comb):
-    aux = []
-    
+    aux = [] 
     # Verifica duplicidade
     for x in range(len(comb)):
         aux.append(comb[x].naipe)
@@ -153,14 +130,11 @@ def checar_fullhouse(comb):
 
 def checar_quadra(comb):
     aux = []
-
     for i in range(len(comb)):
-        aux.append(comb[i].valor)
-    
+        aux.append(comb[i].valor) 
     quadra = []
     for i in aux:
         quadra.append(aux.count(i)) 
-
     if quadra.count(4) == 4:
         return True
     else:
@@ -170,7 +144,6 @@ def checar_straight_flush(comb):
     v = []
     for i in range(len(comb)):
         v.append(comb[i].valor)
-
     if (checar_straight(comb) == True) and (checar_flush(comb) == True) and (max(v) < 14):
         return True
     else:
@@ -178,12 +151,10 @@ def checar_straight_flush(comb):
     
 def checar_royal_flush(comb):
     max = comb[0].valor
-
     # Verifica maior índice
     for i in range(1,len(comb)):
         if comb[i].valor > max:
             max = comb[i].valor
-
     if (checar_straight_flush(comb) == True) and (max == 14):
         return True
     else:
@@ -196,7 +167,6 @@ def montar_mao(mao,jog):
         comb.append(mao[i])
     comb.append(jog.carta_1)
     comb.append(jog.carta_2)
-
     return comb
 
 # Define a pontuação conforme a combinação do Jogador. Será usada para determinar se o jogador venceu ou não a rodada
@@ -227,9 +197,7 @@ def apostas(jog,count):
     with open('initial-hands.csv', newline='') as f:
         reader = csv.reader(f)
         datas = list(reader)
-
     count = count/10 # Aumenta as apostas a cada 10 rodadas
-
     if jog.dinheiro > 0:
         for data in datas:
             # Verifica na tabela de mãos iniciais qual é a mão do jogador e se ele irá apostar ou não
@@ -247,7 +215,6 @@ def main():
     mesa = distribuir_cartas(baralho,2) # para alterar o número de jogadores basta trocar o valor do 2º parâmetro
     flop = [mesa[2][0],mesa[2][1], mesa[2][2]] #, mao = mesa[2]
     jog = []
-
     # Distribui a economia inicial para os jogadores
     for i in mesa[1]:
         jog.append(Jogador(i[0],i[1],1000,0))
@@ -261,10 +228,8 @@ def main():
         pontos = []
         pote = 0
         aposta = []
-
         # Disposição das cartas da rodada atual
-        print(mesa[1],flop)
-        
+        print(mesa[1],flop)  
         # Verifica a mão do jogador, a aposta dele, a pontuação pela combinação e o pote
         for i in range(len(jog)):
             if(jog[i].dinheiro > 0):
@@ -275,23 +240,19 @@ def main():
                 pontos.append(jog[i].pontos)
                 print("Jogador " + str(i+1) + ": " + str(jog[i].pontos) + " - Aposta: " + str(aposta[i]))
                 pote = pote + aposta[i]
-
         #Valor do pote
         print("Pote: " + str(pote))
-
         # Anula pontos de jogador que não apostou
         for i in range(len(jog)):
             if aposta[i] == 0:
                 jog[i].pontos = 0
                 pontos[i] = 0
-
         # Premia jogador com maior pontuação
         for i in range(len(jog)):
             if (jog[i].pontos == max(pontos)) and (min(pontos) != max(pontos)) and (aposta[i] > 0) and (max(pontos) > 0):
                 jog[i].dinheiro += pote
             elif (jog[i].pontos == max(pontos)) and (min(pontos) == max(pontos)) and (aposta[i] > 0) and (max(pontos) > 0):
-                jog[i].dinheiro += pote/2
-        
+                jog[i].dinheiro += pote/2  
         # Criação de nova rodada
         baralho = preencher_baralho()
         random.shuffle(baralho)
@@ -300,7 +261,6 @@ def main():
         for j in range(len(mesa[1])):
             jog[j].carta_1 = mesa[1][j][0]
             jog[j].carta_2 = mesa[1][j][1]
-
         print("Fim da Rodada: ", count)
 
 main()
