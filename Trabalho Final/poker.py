@@ -6,10 +6,11 @@ import csv
 import numpy as np
 
 class Jogador:
-    def __init__(self, carta_1, carta_2, dinheiro):
+    def __init__(self, carta_1, carta_2, dinheiro, pontos):
         self.carta_1 = carta_1
         self.carta_2 = carta_2
         self.dinheiro = dinheiro
+        self.pontos = pontos
 
 # Carta possui: valor e naipe da carta e indice de valor
 class Carta:
@@ -53,10 +54,10 @@ def distribuir_cartas(baralho,qtd_jog):
 def soma_cartas(mao,jog):
     soma = 0
     for i in range(len(mao)):
-        soma += mao[i].valor*10
+        soma += mao[i].valor**2
     
-    soma += jog.carta_1.valor*10
-    soma += jog.carta_2.valor*10
+    soma += jog.carta_1.valor**2
+    soma += jog.carta_2.valor**2
     
     return soma
 
@@ -257,7 +258,7 @@ def apostas(jog):
             if (str(jog.carta_1.nome) == data[0]) and (str(jog.carta_2.nome) == data[1]) or (str(jog.carta_1.nome) == data[1]) and (str(jog.carta_2.nome) == data[0]):
                 if (data[2] == "blue") or (data[2] == "green") or (data[2] == "yellow"):
                     return 100
-                elif data[2] == "red":
+                else:
                     return 0
     else:
         return 0
@@ -266,36 +267,57 @@ def main():
     baralho = preencher_baralho()
     random.shuffle(baralho)
     mesa = distribuir_cartas(baralho,2) # para alterar o número de jogadores basta trocar o valor do 2º parâmetro
-    flop = [mesa[2][0],mesa[2][1], mesa[2][2]]
-    #mao = mesa[2]
-    jogadores = []
+    flop = [mesa[2][0],mesa[2][1], mesa[2][2]] #, mao = mesa[2]
+    jog = []
+
+    # Distribui a economia inicial para os jogadores
     for i in mesa[1]:
-        jogadores.append(Jogador(i[0],i[1],1000))
-    
-    count = 0
-    while (count < 10):
+        jog.append(Jogador(i[0],i[1],1000,0))
+
+    # As apostas seguem até que o primeiro jogador não tenha mais economia
+    while (jog[0].dinheiro > 0 or jog[1].dinheiro > 0):        
+        print("Jogador 1 - Economia: " + str(jog[0].dinheiro))
+        print("Jogador 2 - Economia: " + str(jog[1].dinheiro))
+        print()
         pontos = []
         pote = 0
+        aposta = []
+
+        # Disposição das cartas da rodada atual
         print(mesa[1],flop)
-        for i in range(len(jogadores)):
-            pontos.append(verifica_combinacoes(flop,jogadores[i]) + soma_cartas(flop, jogadores[i]))
-            aposta = apostas(jogadores[i])
-            print("Jogador " + str(i+1) + ": " + str(pontos[i]) + "- Aposta: " + str(aposta))
-            pote = pote + aposta
         
+        # Verifica a mão do jogador, a aposta dele, a pontuação pela combinação e o pote
+        for i in range(len(jog)):
+            aposta.append(apostas(jog[i]))
+            jog[i].pontos = verifica_combinacoes(flop,jog[i]) + soma_cartas(flop, jog[i])
+            pontos.append(jog[i].pontos)
+            print("Jogador " + str(i+1) + ": " + str(jog[i].pontos) + "- Aposta: " + str(aposta[i]))
+            jog[i].dinheiro -= aposta[i]
+            pote = pote + aposta[i]
+        
+        #Valor do pote
         print("Pote: " + str(pote))
 
+        # Anula pontos de jogador que não apostou
+        for i in range(len(jog)):
+            if aposta[i] == 0:
+                jog[i].pontos = 0
+                pontos[i] = 0
+
+        # Premia jogador com maior pontuação
+        for i in range(len(jog)):
+            if (jog[i].pontos == max(pontos)) and (min(pontos) != max(pontos)) and (aposta[i] > 0) and (max(pontos) > 0):
+                jog[i].dinheiro += pote
+            elif (jog[i].pontos == max(pontos)) and (min(pontos) == max(pontos)) and (aposta[i] > 0) and (max(pontos) > 0):
+                jog[i].dinheiro += pote/2
+        
+        # Criação de nova rodada
         baralho = preencher_baralho()
         random.shuffle(baralho)
         mesa = distribuir_cartas(baralho,2)
         flop = [mesa[2][0],mesa[2][1], mesa[2][2]]
         for j in range(len(mesa[1])):
-            jogadores[j].carta_1 = mesa[1][j][0]
-            jogadores[j].carta_2 = mesa[1][j][1]
-        
-        
-
-        #for i in range(len(jogadores)):
-        count += 1
+            jog[j].carta_1 = mesa[1][j][0]
+            jog[j].carta_2 = mesa[1][j][1]
 
 main()
